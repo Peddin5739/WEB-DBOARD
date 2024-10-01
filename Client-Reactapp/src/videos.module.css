@@ -1,0 +1,31 @@
+.content {
+  background-color: #f4f4f4; /* Light grey background */
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: 20px auto;
+  text-align: center;
+}
+
+.videoContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px; /* Space between videos */
+  padding: 20px 0; /* Padding at the top and bottom */
+}
+
+.video {
+  width: 100%; /* Responsive width */
+  height: 200px; /* Fixed height, can adjust as needed */
+  border: none; /* Removes the default iframe border */
+  border-radius: 8px; /* Optional: Rounds the corners of the iframe */
+  overflow: hidden; /* Helps with the border-radius */
+}
+
+/* Adjusts the video height based on the width to maintain aspect ratio */
+@media (min-width: 600px) {
+  .video {
+    height: 315px;
+  }
+}

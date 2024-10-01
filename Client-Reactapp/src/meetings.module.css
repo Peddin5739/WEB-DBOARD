@@ -1,0 +1,44 @@
+.content {
+  background-color: #f4f4f4; /* Light grey background */
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  max-width: 800px; /* Adjust as needed */
+  margin: auto;
+  text-align: center;
+}
+
+.meetingsList {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.meetingDateButton {
+  background-color: #283593; /* Deep blue */
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.meetingDateButton:hover {
+  background-color: #4055a8; /* Slightly lighter blue */
+}
+
+.meetingDetails {
+  margin-top: 20px;
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  text-align: left;
+}
+
+.meetingDetails strong {
+  color: #283593; /* Deep blue for strong text */
+}
