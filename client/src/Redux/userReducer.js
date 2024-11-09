@@ -1,6 +1,8 @@
+// userReducer.js
+
 const initialState = {
   isAuthenticated: false,
-  userType: null,
+  userData: null, // Store full user data here
   statusCode: null,
   errorMessage: null,
 };
@@ -11,21 +13,16 @@ const userReducer = (state = initialState, action) => {
       return {
         ...state,
         isAuthenticated: true,
-        userType: action.payload.userType,
+        userData: action.payload.userData, // Save full user data from payload
         statusCode: action.payload.statusCode,
         errorMessage: null, // Reset error message on success
       };
     case "LOGIN_FAILURE":
-      return {
-        ...state,
-        isAuthenticated: false,
-        statusCode: action.payload.statusCode,
-        errorMessage: action.payload.errorMessage,
-      };
     case "LOGIN_ERROR":
       return {
         ...state,
         isAuthenticated: false,
+        userData: null, // Clear user data on failure
         statusCode: action.payload.statusCode,
         errorMessage: action.payload.errorMessage,
       };
@@ -33,7 +30,7 @@ const userReducer = (state = initialState, action) => {
       return {
         ...state,
         isAuthenticated: false,
-        userType: null,
+        userData: null, // Clear user data on logout
         statusCode: null,
         errorMessage: null,
       };

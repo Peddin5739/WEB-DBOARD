@@ -1,6 +1,5 @@
 const express = require("express");
 const mysql = require("mysql2");
-const bcrypt = require("bcryptjs");
 const app = express();
 const cors = require("cors");
 const port = 8080;
@@ -26,37 +25,47 @@ db.connect((err) => {
   }
 });
 
-// POST /validateuser - login route (without bcrypt)
-app.post("/validateuser", (req, res) => {
-  const { email, password } = req.body;
+// Login endpoint
+// Login endpoint
+app.post("/login", (req, res) => {
+  const { username, password } = req.body;
 
-  // Query the database to find the user by email
-  const query = "SELECT * FROM users WHERE email = ?";
-  db.query(query, [email], (err, results) => {
+  // Query to find the user by username
+  const query = "SELECT * FROM users WHERE username = ? AND password = ?";
+
+  // Execute the query
+  db.query(query, [username, password], (err, results) => {
     if (err) {
-      return res
-        .status(500)
-        .json({ status: "false", message: "Database error" });
+      console.error("Error executing the query:", err);
+      return res.status(500).json({ error: "Database error" });
     }
 
+    // Check if user exists and if the password matches
     if (results.length === 0) {
-      return res
-        .status(401)
-        .json({ status: "false", message: "Invalid email or password" });
+      return res.status(401).json({ error: "Invalid username or password" });
     }
 
-    const user = results[0];
+    // Send all user data (without password) to the frontend
+    const { password, ...userData } = results[0]; // Exclude password
+    res.json(userData);
+  });
+});
+// Endpoint to get all courses taught by a specific faculty
+app.get("/faculty-courses/:facultyId", (req, res) => {
+  const { facultyId } = req.params;
 
-    // Compare the plain text password
-    if (password === user.password) {
-      // Login success, send the user type (role)
-      res.json({ status: "true", usertype: user.role });
-    } else {
-      // Invalid password
-      res
-        .status(401)
-        .json({ status: "false", message: "Invalid email or password" });
+  // Query to select all courses where faculty_id matches
+  const query = "SELECT * FROM courses WHERE faculty_id = ?";
+
+  // Execute the query
+  db.query(query, [facultyId], (err, results) => {
+    if (err) {
+      console.error("Error executing the query:", err);
+      return res.status(500).json({ error: "Database error" });
     }
+
+    // Send the list of courses back to the frontend
+    res.json(results);
   });
 });
 

@@ -1,3 +1,5 @@
+// Login.jsx
+
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom"; // For navigation
@@ -9,18 +11,18 @@ function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate(); // To navigate after successful login
 
-  // Safely retrieve user state from Redux, with fallback if undefined
+  // Retrieve user state from Redux, with a fallback if undefined
   const user = useSelector((state) => state.user || {});
-  const { statusCode, errorMessage } = user;
+  const { userData, statusCode, errorMessage } = user;
 
   const handleLogin = async () => {
     try {
-      const response = await fetch("http://localhost:8080/validateuser", {
+      const response = await fetch("http://localhost:8080/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username: email, password }),
       });
 
       const data = await response.json();
@@ -29,8 +31,12 @@ function Login() {
         // If login is successful, dispatch LOGIN_SUCCESS and navigate to App
         dispatch({
           type: "LOGIN_SUCCESS",
-          payload: { userType: data.usertype, statusCode: response.status },
+          payload: {
+            userData: data, // Store all user data in userData
+            statusCode: response.status,
+          },
         });
+        console.log("User data:", data);
         navigate("/dashboard"); // Navigate to the main application page
       } else {
         // If login fails, dispatch LOGIN_FAILURE
@@ -59,7 +65,7 @@ function Login() {
       <h2>Login</h2>
       <input
         type="text"
-        placeholder="Email"
+        placeholder="Username" // Changed placeholder from Email to Username
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
@@ -73,10 +79,7 @@ function Login() {
 
       {/* Display error message or status code if login fails */}
       {statusCode !== null && (
-        <div>
-          <p>Status Code: {statusCode}</p>
-          {errorMessage && <p>Error: {errorMessage}</p>}
-        </div>
+        <div>{errorMessage && <p>Error: {errorMessage}</p>}</div>
       )}
     </div>
   );

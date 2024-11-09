@@ -176,6 +176,18 @@ INSERT INTO enrollments (id, student_id, course_id, enrolled_at) VALUES
 (9, 7, 9, NOW()),
 (10, 9, 10, NOW());
 
+select * from enrollments;
+
+INSERT INTO enrollments (id, student_id, course_id, enrolled_at) VALUES
+(11, 11, 1, NOW()),
+(12, 11, 2, NOW()),
+(13, 11, 10, NOW());
+
+
+
+
+
+
 INSERT INTO discussions (id, course_id, user_id, message, attachment, created_at) VALUES
 (1, 1, 1, 'What are the assignments for next week?', '', NOW()),
 (2, 2, 3, 'Can someone help me with binary trees?', '', NOW()),
@@ -238,7 +250,11 @@ INSERT INTO event_registrations (id, event_id, student_id, registered_at) VALUES
 (8, 8, 5, NOW()),
 (9, 9, 7, NOW()),
 (10, 10, 9, NOW());
-
+INSERT INTO event_registrations (id, event_id, student_id, registered_at) VALUES
+(1, 1, 1, NOW()),
+(2, 2, 3, NOW()),
+(9, 9, 7, NOW()),
+(10, 10, 9, NOW());
 INSERT INTO appointments (id, student_id, department_name, url, created_at) VALUES
 (1, 1, 'Writing Center', 'http://writingcenter.example.com', NOW()),
 (2, 3, 'Student Success Center', 'http://successcenter.example.com', NOW()),
@@ -262,6 +278,96 @@ INSERT INTO posts (id, title, body, user_id, status, created_at) VALUES
 (8, 'Blockchain Basics', 'Understanding the fundamentals of blockchain', 8, 'published', NOW()),
 (9, 'Cybersecurity Essentials', 'Key principles of cybersecurity', 9, 'draft', NOW()),
 (10, 'AI in Healthcare', 'How AI is transforming the healthcare industry', 10, 'published', NOW());
+
+DELIMITER //
+
+CREATE TRIGGER log_enrollment
+AFTER INSERT ON enrollments
+FOR EACH ROW
+BEGIN
+  INSERT INTO posts (title, body, user_id, status, created_at)
+  VALUES (CONCAT('New Enrollment by ', NEW.student_id), 
+          CONCAT('Student ', NEW.student_id, ' enrolled in course ', NEW.course_id), 
+          NEW.student_id, 'published', NOW());
+END //
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE TRIGGER notify_event_registration
+AFTER INSERT ON event_registrations
+FOR EACH ROW
+BEGIN
+  DECLARE creator INT DEFAULT NULL;
+  
+  SET creator = (SELECT created_by FROM events WHERE id = NEW.event_id);
+
+  INSERT INTO posts (title, body, user_id, status, created_at)
+  VALUES (CONCAT('New Registration for Event ', NEW.event_id), 
+          CONCAT('Student ', NEW.student_id, ' has registered for your event.'), 
+          creator, 'published', NOW());
+END //
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE TRIGGER track_book_transaction
+AFTER INSERT ON book_transactions
+FOR EACH ROW
+BEGIN
+  INSERT INTO posts (title, body, user_id, status, created_at)
+  VALUES (CONCAT('Book Transaction: ', NEW.transaction_type), 
+          CONCAT('Student ', NEW.student_id, ' performed a ', NEW.transaction_type, ' on book ID ', NEW.book_id, ' with status ', NEW.status), 
+          NEW.student_id, 'published', NOW());
+END //
+
+DELIMITER ;
+
+-- Trigger to Enforce Unique Appointments per Student per Department
+DELIMITER //
+
+CREATE TRIGGER unique_appointment
+BEFORE INSERT ON appointments
+FOR EACH ROW
+BEGIN
+  DECLARE appointment_exists INT;
+
+  SET appointment_exists = (SELECT COUNT(*) FROM appointments 
+                            WHERE student_id = NEW.student_id 
+                            AND department_name = NEW.department_name);
+
+  IF appointment_exists > 0 THEN
+    SIGNAL SQLSTATE '45000'
+    SET MESSAGE_TEXT = 'Student already has an appointment with this department.';
+  END IF;
+END //
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE TRIGGER set_course_status_on_faculty_removal
+AFTER UPDATE ON users
+FOR EACH ROW
+BEGIN
+  IF OLD.role = 'faculty' AND NEW.role != 'faculty' THEN
+    UPDATE courses
+    SET faculty_id = NULL
+    WHERE faculty_id = OLD.id;
+    
+    INSERT INTO posts (title, body, user_id, status, created_at)
+    VALUES ('Faculty Removed from Course', 
+            CONCAT('Faculty ID ', OLD.id, ' removed. Courses are now unassigned.'), 
+            NULL, 'published', NOW());
+  END IF;
+END //
+
+DELIMITER ;
+
+
+
 
 
 
