@@ -1,0 +1,86 @@
+/* Discussion container */
+.discussion-container {
+  display: flex;
+  flex-direction: column;
+  height: 90vh;
+  max-width: 800px;
+  margin: 0 auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Chat box styling */
+.chat-box {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Individual chat message */
+.chat-message {
+  padding: 10px;
+  border-radius: 8px;
+  background-color: #e8f5ff;
+  color: #333;
+  max-width: 60%;
+  align-self: flex-start;
+}
+
+/* Message content */
+.message-content {
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+/* Timestamp */
+.message-timestamp {
+  font-size: 12px;
+  color: #888;
+  text-align: right;
+}
+
+/* User's own message alignment */
+.chat-message.user {
+  background-color: #d1ecf1;
+  align-self: flex-end;
+}
+
+/* Input bar at the bottom */
+.input-bar {
+  display: flex;
+  padding: 10px;
+  background-color: #fff;
+  border-top: 1px solid #e0e0e0;
+}
+
+/* Message input field */
+.message-input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  outline: none;
+}
+
+/* Send button */
+.send-button {
+  padding: 0 15px;
+  font-size: 24px;
+  color: #007bff;
+  background: none;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  transition: color 0.3s;
+}
+
+.send-button:hover {
+  color: #0056b3;
+}
