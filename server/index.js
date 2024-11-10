@@ -180,11 +180,20 @@ app.put("/book-transactions/:transactionId", (req, res) => {
 });
 
 // Endpoint to get all events
+// Endpoint to get events based on the created_by field
 app.get("/events", (req, res) => {
-  // Corrected query to use `date` and `time` instead of `event_date`
-  const query = "SELECT * FROM events ORDER BY date DESC, time DESC";
+  const { created_by } = req.query;
 
-  db.query(query, (err, results) => {
+  // Check if created_by is provided
+  if (!created_by) {
+    return res.status(400).json({ error: "created_by is required" });
+  }
+
+  // Query to get events created by the specified user
+  const query =
+    "SELECT * FROM events WHERE created_by = ? ORDER BY date DESC, time DESC";
+
+  db.query(query, [created_by], (err, results) => {
     if (err) {
       console.error("Error fetching events:", err);
       return res.status(500).json({ error: "Database error" });
@@ -193,7 +202,32 @@ app.get("/events", (req, res) => {
     res.json(results);
   });
 });
+// Endpoint to get all courses with faculty names
+app.get("/courses", (req, res) => {
+  const query = `
+    SELECT 
+      courses.id AS course_id,
+      courses.course_name,
+      courses.semester,
+      users.username AS faculty_name,
+      courses.created_at
+    FROM 
+      courses
+    LEFT JOIN 
+      users ON courses.faculty_id = users.id
+    ORDER BY 
+      courses.created_at DESC;
+  `;
 
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error fetching course details:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    res.json(results);
+  });
+});
 // Endpoint to create a new event
 app.post("/events", (req, res) => {
   const { event_title, description, date, time, venue, created_by } = req.body;
@@ -225,6 +259,78 @@ app.post("/events", (req, res) => {
       });
     }
   );
+});
+
+// Endpoint to get enrollments by student ID
+app.get("/enrollments", (req, res) => {
+  const { student_id } = req.query;
+
+  if (!student_id) {
+    return res
+      .status(400)
+      .json({ error: "student_id query parameter is required" });
+  }
+
+  const query = `
+    SELECT 
+      enrollments.id AS enrollment_id,
+      courses.course_name,
+      courses.semester,
+      users.username AS faculty_name,
+      enrollments.enrolled_at
+    FROM 
+      enrollments
+    JOIN 
+      courses ON enrollments.course_id = courses.id
+    JOIN 
+      users ON courses.faculty_id = users.id
+    WHERE 
+      enrollments.student_id = ?
+    ORDER BY 
+      enrollments.enrolled_at DESC
+  `;
+
+  db.query(query, [student_id], (err, results) => {
+    if (err) {
+      console.error("Error fetching enrollments:", err);
+      return res
+        .status(500)
+        .json({ error: "Database error while fetching enrollments" });
+    }
+
+    res.json(results);
+  });
+});
+
+// Endpoint to enroll a student in a course
+app.post("/enroll", (req, res) => {
+  const { student_id, course_id } = req.body;
+
+  if (!student_id || !course_id) {
+    return res
+      .status(400)
+      .json({ error: "student_id and course_id are required" });
+  }
+
+  const query = `
+    INSERT INTO enrollments (student_id, course_id, enrolled_at)
+    VALUES (?, ?, NOW())
+  `;
+
+  db.query(query, [student_id, course_id], (err, results) => {
+    if (err) {
+      console.error("Error enrolling student:", err);
+      return res
+        .status(500)
+        .json({ error: "Database error while enrolling student" });
+    }
+
+    res.json({
+      success: true,
+      message: "Student enrolled successfully",
+      enrollmentId: results.insertId,
+    });
+  });
 });
 
 // Start the server

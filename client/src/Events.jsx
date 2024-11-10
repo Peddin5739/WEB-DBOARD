@@ -5,7 +5,7 @@ import "./Events.css"; // Assuming you have a CSS file for styling
 export default function Events() {
   const user = useSelector((state) => state.user || {});
   const { userData = {} } = user;
-  const { id: createdBy } = userData;
+  const { id: createdBy } = userData; // Extract user ID for filtering events
 
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,8 +20,9 @@ export default function Events() {
   });
   const [editingEvent, setEditingEvent] = useState(null);
 
+  // Fetch events created by the current user
   const fetchEvents = () => {
-    fetch("http://localhost:8080/events")
+    fetch(`http://localhost:8080/events?created_by=${createdBy}`)
       .then((res) => res.json())
       .then((data) => {
         setEvents(data);
@@ -36,7 +37,7 @@ export default function Events() {
 
   useEffect(() => {
     fetchEvents();
-  }, []);
+  }, [createdBy]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

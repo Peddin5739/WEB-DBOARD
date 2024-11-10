@@ -1,0 +1,58 @@
+/* StdDashboard.css */
+
+.std-dashboard {
+  background-image: url("https://blog.uhcl.edu/news/images/newsroom-image-header-templates/uhcl-newsroom-main-template-v2.jpg");
+  background-size: cover;
+  background-position: center;
+  color: white;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.header {
+  width: 100%;
+  background-color: #004080; /* Blue background */
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.header button {
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.header button:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.content {
+  text-align: center;
+  margin-top: 50px;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 600px;
+  color: #f1f1f1;
+}
+
+.content h1 {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.content p {
+  font-size: 18px;
+  line-height: 1.5;
+}

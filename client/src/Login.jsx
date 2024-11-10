@@ -1,15 +1,13 @@
-// Login.jsx
-
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom"; // For navigation
+import { useNavigate } from "react-router-dom";
 import styles from "./CSS/Login.module.css";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const dispatch = useDispatch();
-  const navigate = useNavigate(); // To navigate after successful login
+  const navigate = useNavigate();
 
   // Retrieve user state from Redux, with a fallback if undefined
   const user = useSelector((state) => state.user || {});
@@ -28,7 +26,7 @@ function Login() {
       const data = await response.json();
 
       if (response.ok) {
-        // If login is successful, dispatch LOGIN_SUCCESS and navigate to App
+        // If login is successful, dispatch LOGIN_SUCCESS
         dispatch({
           type: "LOGIN_SUCCESS",
           payload: {
@@ -37,7 +35,13 @@ function Login() {
           },
         });
         console.log("User data:", data);
-        navigate("/dashboard"); // Navigate to the main application page
+
+        // Check the user's role and navigate accordingly
+        if (data.role === "faculty") {
+          navigate("/dashboard"); // Navigate to faculty dashboard
+        } else if (data.role === "student") {
+          navigate("/stdDashboard"); // Navigate to student dashboard
+        }
       } else {
         // If login fails, dispatch LOGIN_FAILURE
         dispatch({
@@ -62,10 +66,9 @@ function Login() {
 
   return (
     <div className={styles.loginContainer}>
-      <h2>Login</h2>
       <input
         type="text"
-        placeholder="Username" // Changed placeholder from Email to Username
+        placeholder="Username"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />

@@ -6,7 +6,10 @@ import Courses from "./Courses";
 import Discussion from "./Discussion";
 import Manage_books from "./Manage_books";
 import Events from "./Events";
-
+import StdDashboard from "./StdDashboard";
+import StdCourse from "./StdCourse";
+import StdBooks from "./StdBooks";
+import StdEvents from "./StdEvents";
 function App() {
   return (
     <Router>
@@ -17,6 +20,10 @@ function App() {
         <Route path="/discussion" element={<Discussion />} />
         <Route path="/manageBooks" element={<Manage_books />} />
         <Route path="/events" element={<Events />} />
+        <Route path="/stdDashboard" element={<StdDashboard />} />
+        <Route path="/stdCourse" element={<StdCourse />} />
+        <Route path="/stdBooks" element={<StdBooks />} />
+        <Route path="/stdEvents" element={<StdEvents />} />
       </Routes>
     </Router>
   );
