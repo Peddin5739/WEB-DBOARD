@@ -10,7 +10,7 @@ CREATE TABLE users (
     role VARCHAR(50) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
+select* from users;
 -- Courses Table
 CREATE TABLE courses (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -21,7 +21,7 @@ CREATE TABLE courses (
     FOREIGN KEY (faculty_id) REFERENCES users(id) 
       ON DELETE SET NULL ON UPDATE CASCADE
 );
-
+select * from courses;
 -- Enrollments Table
 CREATE TABLE enrollments (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -33,7 +33,7 @@ CREATE TABLE enrollments (
     FOREIGN KEY (course_id) REFERENCES courses(id) 
       ON DELETE CASCADE ON UPDATE CASCADE
 );
-
+select * from enrollments;
 -- Discussions Table
 CREATE TABLE discussions (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -58,7 +58,7 @@ CREATE TABLE books (
     FOREIGN KEY (faculty_id) REFERENCES users(id) 
       ON DELETE SET NULL ON UPDATE CASCADE
 );
-
+select * from books;
 -- Book Transactions Table
 CREATE TABLE book_transactions (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -73,7 +73,7 @@ CREATE TABLE book_transactions (
     FOREIGN KEY (student_id) REFERENCES users(id) 
       ON DELETE CASCADE ON UPDATE CASCADE
 );
-
+select * from book_transactions;
 -- Events Table
 CREATE TABLE events (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -200,6 +200,8 @@ INSERT INTO books (book_title, author, faculty_id, created_at) VALUES
 ('Data Science from Scratch', 'Joel Grus', 2, NOW()),
 ('Cloud Computing: Concepts & Technology', 'Thomas Erl', 4, NOW());
 
+select * from books;
+
 -- Insert sample data into book_transactions table
 INSERT INTO book_transactions (book_id, student_id, transaction_type, transaction_date, amount, status) VALUES
 (1, 1, 'rent', NOW(), 15.00, 'active'),
@@ -212,7 +214,7 @@ INSERT INTO book_transactions (book_id, student_id, transaction_type, transactio
 (8, 5, 'sell', NOW(), 20.00, 'completed'),
 (9, 7, 'rent', NOW(), 15.00, 'active'),
 (10, 9, 'buy', NOW(), 50.00, 'completed');
-
+select * from book_transactions;
 -- Insert sample data into events table
 INSERT INTO events (event_title, description, date, time, venue, created_by, created_at) VALUES
 ('AI Workshop', 'An in-depth workshop on AI', '2024-11-15', '09:00:00', 'Room A', 2, NOW()),
@@ -226,6 +228,8 @@ INSERT INTO events (event_title, description, date, time, venue, created_by, cre
 ('Cybersecurity Trends', 'Future of cybersecurity', '2024-11-18', '18:00:00', 'Room I', 2, NOW()),
 ('Blockchain Tech', 'Exploring blockchain uses', '2024-12-22', '19:00:00', 'Room J', 4, NOW());
 
+select * from events;
+select * from users;
 -- Insert sample data into event_registrations table
 INSERT INTO event_registrations (event_id, student_id, registered_at) VALUES
 (1, 1, NOW()),

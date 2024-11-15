@@ -109,74 +109,48 @@ app.get("/discussions", (req, res) => {
     res.json(results);
   });
 });
+// Endpoint to get books based on faculty_id
+app.get("/books/:facultyId", (req, res) => {
+  const { facultyId } = req.params;
 
-// Endpoint to get all book transactions along with the username of each user
-app.get("/book-transactions", (req, res) => {
-  // Query to select all book transactions and include the username from the users table
-  const query = `
-    SELECT 
-      bt.id, 
-      bt.book_id, 
-      bt.student_id, 
-      bt.transaction_type, 
-      bt.amount, 
-      bt.status, 
-      bt.transaction_date, 
-      u.username AS student_username
-    FROM 
-      book_transactions bt
-    JOIN 
-      users u ON bt.student_id = u.id
-    ORDER BY 
-      bt.transaction_date DESC
-  `;
+  const query = "SELECT * FROM books WHERE faculty_id = ?";
 
-  // Execute the query
-  db.query(query, (err, results) => {
+  db.query(query, [facultyId], (err, results) => {
     if (err) {
-      console.error("Error executing the query:", err);
+      console.error("Error fetching books:", err);
       return res.status(500).json({ error: "Database error" });
     }
 
-    // Send the list of transactions with usernames back to the frontend
     res.json(results);
   });
 });
 
-// Endpoint to update a specific book transaction
-app.put("/book-transactions/:transactionId", (req, res) => {
-  const { transactionId } = req.params;
-  const { book_id, student_id, transaction_type, amount, status } = req.body;
+// Endpoint to allow faculty to add a new book
+app.post("/books", (req, res) => {
+  const { book_title, author, faculty_id } = req.body;
 
-  // Query to update the specified transaction
+  // Check if all required fields are provided
+  if (!book_title || !author || !faculty_id) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+
   const query = `
-    UPDATE book_transactions 
-    SET book_id = ?, student_id = ?, transaction_type = ?, amount = ?, status = ?
-    WHERE id = ?
+    INSERT INTO books (book_title, author, faculty_id, created_at)
+    VALUES (?, ?, ?, NOW())
   `;
 
-  // Execute the query
-  db.query(
-    query,
-    [book_id, student_id, transaction_type, amount, status, transactionId],
-    (err, results) => {
-      if (err) {
-        console.error("Error executing the query:", err);
-        return res.status(500).json({ error: "Database error" });
-      }
-
-      // Check if any row was actually updated
-      if (results.affectedRows === 0) {
-        return res.status(404).json({ error: "Transaction not found" });
-      }
-
-      // Respond with a success message
-      res.json({
-        success: true,
-        message: "Transaction updated successfully",
-      });
+  db.query(query, [book_title, author, faculty_id], (err, results) => {
+    if (err) {
+      console.error("Error adding book:", err);
+      return res.status(500).json({ error: "Database error" });
     }
-  );
+
+    res.json({
+      success: true,
+      message: "Book added successfully",
+      bookId: results.insertId,
+    });
+  });
 });
 
 // Endpoint to get all events
@@ -331,6 +305,104 @@ app.post("/enroll", (req, res) => {
       enrollmentId: results.insertId,
     });
   });
+});
+//student manage books
+app.get("/enrolled-books/:studentId", (req, res) => {
+  const { studentId } = req.params;
+
+  const query = `
+    SELECT 
+      books.id AS book_id,
+      books.book_title,
+      books.author,
+      books.created_at,
+      users.username AS faculty_name
+    FROM 
+      enrollments
+    JOIN 
+      courses ON enrollments.course_id = courses.id
+    JOIN 
+      books ON courses.faculty_id = books.faculty_id
+    JOIN 
+      users ON books.faculty_id = users.id
+    WHERE 
+      enrollments.student_id = ?
+    ORDER BY 
+      books.created_at DESC;
+  `;
+
+  db.query(query, [studentId], (err, results) => {
+    if (err) {
+      console.error("Error fetching books based on enrolled courses:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    res.json(results);
+  });
+});
+app.get("/check-transaction/:bookId/:studentId", (req, res) => {
+  const { bookId, studentId } = req.params;
+
+  const query = `
+    SELECT 
+      id, 
+      transaction_type, 
+      amount, 
+      status, 
+      transaction_date 
+    FROM 
+      book_transactions 
+    WHERE 
+      book_id = ? AND student_id = ?
+    LIMIT 1;
+  `;
+
+  db.query(query, [bookId, studentId], (err, results) => {
+    if (err) {
+      console.error("Error checking transaction:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    if (results.length === 0) {
+      // No transaction found for the given book_id and student_id
+      return res.json({ message: "Transaction not available" });
+    }
+
+    // Transaction found, return transaction details
+    res.json(results[0]);
+  });
+});
+// POST endpoint to add a transaction to book_transactions
+app.post("/book-transaction", (req, res) => {
+  const { book_id, student_id, transaction_type } = req.body;
+  let amount;
+
+  // Set amount based on transaction type
+  if (transaction_type === "rent") {
+    amount = 20.0;
+  } else if (transaction_type === "buy") {
+    amount = 50.0;
+  } else {
+    return res.status(400).json({ error: "Invalid transaction type" });
+  }
+
+  const query = `
+    INSERT INTO book_transactions (book_id, student_id, transaction_type, transaction_date, amount, status)
+    VALUES (?, ?, ?, NOW(), ?, 'active')
+  `;
+
+  db.query(
+    query,
+    [book_id, student_id, transaction_type, amount],
+    (err, result) => {
+      if (err) {
+        console.error("Error adding transaction:", err);
+        return res.status(500).json({ error: "Database error" });
+      }
+
+      res.json({ success: true, message: "Transaction added successfully" });
+    }
+  );
 });
 
 // Start the server

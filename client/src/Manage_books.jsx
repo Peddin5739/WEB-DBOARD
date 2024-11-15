@@ -1,188 +1,114 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import "./ManageBooks.css";
 
-export default function ManageBooks() {
-  const [transactions, setTransactions] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [editingTransaction, setEditingTransaction] = useState(null);
-  const [totalPages, setTotalPages] = useState(1);
-  const [formData, setFormData] = useState({
-    book_id: null,
-    student_id: null,
-    transaction_type: "",
-    amount: "",
-    status: "",
-  });
+export default function Manage_books() {
+  const user = useSelector((state) => state.user || {});
+  const { userData = {}, isAuthenticated, errorMessage } = user;
+  const { id: facultyId, role, username } = userData;
 
-  const transactionsPerPage = 5;
+  const [books, setBooks] = useState([]);
+  const [newBook, setNewBook] = useState({ book_title: "", author: "" });
+  const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
-  // Fetch transactions from server with pagination
+  // Fetch books on component mount
   useEffect(() => {
-    fetchTransactions();
-  }, [currentPage]);
-
-  const fetchTransactions = async () => {
-    try {
-      const response = await fetch(`http://localhost:8080/book-transactions`);
-      const data = await response.json();
-      setTransactions(data);
-      setTotalPages(Math.ceil(data.length / transactionsPerPage));
-    } catch (error) {
-      console.error("Error fetching transactions:", error);
+    if (facultyId) {
+      fetch(`http://localhost:8080/books/${facultyId}`)
+        .then((response) => {
+          if (!response.ok) throw new Error("Failed to fetch books");
+          return response.json();
+        })
+        .then((data) => setBooks(data))
+        .catch((error) => setError(error.message));
     }
-  };
+  }, [facultyId]);
 
-  // Handle pagination
-  const goToNextPage = () => {
-    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-  };
-
-  const goToPreviousPage = () => {
-    if (currentPage > 1) setCurrentPage(currentPage - 1);
-  };
-
-  // Handle edit
-  const handleEditClick = (transaction) => {
-    setEditingTransaction(transaction.id);
-    setFormData({
-      book_id: transaction.book_id,
-      student_id: transaction.student_id,
-      transaction_type: transaction.transaction_type,
-      amount: transaction.amount,
-      status: transaction.status,
-    });
-  };
-
+  // Handle input change for new book form
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
+    setNewBook({ ...newBook, [name]: value });
   };
 
-  const handleSaveClick = async (transactionId) => {
-    try {
-      const response = await fetch(
-        `http://localhost:8080/book-transactions/${transactionId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
-
-      if (response.ok) {
-        // Update the specific transaction in the state instead of re-fetching all transactions
-        setTransactions((prevTransactions) =>
-          prevTransactions.map((transaction) =>
-            transaction.id === transactionId
-              ? { ...transaction, ...formData }
-              : transaction
-          )
-        );
-        setEditingTransaction(null); // Exit edit mode
-      } else {
-        console.error("Error updating transaction");
-      }
-    } catch (error) {
-      console.error("Error saving transaction:", error);
+  // Add a new book
+  const addBook = (e) => {
+    e.preventDefault();
+    if (!newBook.book_title || !newBook.author) {
+      setError("Please fill in all fields");
+      return;
     }
-  };
 
-  // Get current page transactions
-  const indexOfLastTransaction = currentPage * transactionsPerPage;
-  const indexOfFirstTransaction = indexOfLastTransaction - transactionsPerPage;
-  const currentTransactions = transactions.slice(
-    indexOfFirstTransaction,
-    indexOfLastTransaction
-  );
+    fetch("http://localhost:8080/books", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ ...newBook, faculty_id: facultyId }),
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error("Failed to add book");
+        return response.json();
+      })
+      .then((data) => {
+        setSuccessMessage("Book added successfully");
+        setBooks([
+          ...books,
+          { ...newBook, id: data.bookId, created_at: new Date().toISOString() },
+        ]);
+        setNewBook({ book_title: "", author: "" }); // Reset form
+      })
+      .catch((error) => setError(error.message));
+  };
 
   return (
-    <div className="manage-books">
-      <h2>Manage Book Transactions</h2>
-      <div className="transactions">
-        {currentTransactions.map((transaction) => (
-          <div key={transaction.id} className="transaction-card">
-            <div className="transaction-info">
-              <p>
-                <strong>Book ID:</strong> {transaction.book_id}
-              </p>
-              <p>
-                <strong>Student ID:</strong> {transaction.student_id}
-              </p>
-              <p>
-                <strong>Transaction Type:</strong>{" "}
-                {editingTransaction === transaction.id ? (
-                  <input
-                    type="text"
-                    name="transaction_type"
-                    value={formData.transaction_type}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  transaction.transaction_type
-                )}
-              </p>
-              <p>
-                <strong>Amount:</strong>{" "}
-                {editingTransaction === transaction.id ? (
-                  <input
-                    type="number"
-                    name="amount"
-                    value={formData.amount}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  transaction.amount
-                )}
-              </p>
-              <p>
-                <strong>Status:</strong>{" "}
-                {editingTransaction === transaction.id ? (
-                  <input
-                    type="text"
-                    name="status"
-                    value={formData.status}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  transaction.status
-                )}
-              </p>
-              <p>
-                <strong>Date:</strong>{" "}
-                {new Date(transaction.transaction_date).toLocaleDateString()}
-              </p>
+    <div className="manage-books-container">
+      <h1>Manage Books</h1>
+      {error && <p className="error-message">{error}</p>}
+      {successMessage && <p className="success-message">{successMessage}</p>}
+
+      <div className="books-list">
+        <h3>Your Books</h3>
+        {books.length > 0 ? (
+          books.map((book) => (
+            <div key={book.id} className="book-item">
+              {" "}
+              {/* Added key here */}
+              <h4>{book.book_title}</h4>
+              <p>Author: {book.author}</p>
+              <p>Added on: {new Date(book.created_at).toLocaleDateString()}</p>
             </div>
-            {editingTransaction === transaction.id ? (
-              <button
-                className="save-button"
-                onClick={() => handleSaveClick(transaction.id)}
-              >
-                Save
-              </button>
-            ) : (
-              <button
-                className="edit-button"
-                onClick={() => handleEditClick(transaction)}
-              >
-                Edit
-              </button>
-            )}
-          </div>
-        ))}
+          ))
+        ) : (
+          <p>No books found.</p>
+        )}
       </div>
 
-      <div className="pagination">
-        <button onClick={goToPreviousPage} disabled={currentPage === 1}>
-          Previous
-        </button>
-        <span>
-          Page {currentPage} of {totalPages}
-        </span>
-        <button onClick={goToNextPage} disabled={currentPage === totalPages}>
-          Next
-        </button>
+      <div className="add-book-form">
+        <h3>Add a New Book</h3>
+        <form onSubmit={addBook}>
+          <label>
+            Book Title:
+            <input
+              type="text"
+              name="book_title"
+              value={newBook.book_title}
+              onChange={handleInputChange}
+              required
+            />
+          </label>
+          <label>
+            Author:
+            <input
+              type="text"
+              name="author"
+              value={newBook.author}
+              onChange={handleInputChange}
+              required
+            />
+          </label>
+          <button type="submit">Add Book</button>
+        </form>
       </div>
     </div>
   );
