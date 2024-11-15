@@ -22,6 +22,9 @@ export default function Dashboard() {
               Manage Books
             </button>
             <button onClick={() => navigate("/events")}>Events</button>
+            <button onClick={() => navigate("/appointments")}>
+              Appointments
+            </button>
           </div>
           <div className="welcome-message">Welcome, {username}!</div>
         </>

@@ -1,0 +1,35 @@
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.confirm-button {
+  padding: 8px 12px;
+  font-size: 14px;
+  color: white;
+  background-color: #28a745;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.confirm-button:disabled {
+  background-color: #c3e6cb;
+  cursor: not-allowed;
+}
+
+.cancel-button {
+  padding: 8px 12px;
+  font-size: 14px;
+  color: white;
+  background-color: #dc3545;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.cancel-button:disabled {
+  background-color: #f5c6cb;
+  cursor: not-allowed;
+}

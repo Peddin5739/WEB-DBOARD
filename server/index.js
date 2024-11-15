@@ -404,6 +404,187 @@ app.post("/book-transaction", (req, res) => {
     }
   );
 });
+app.get("/std_events", (req, res) => {
+  const query = `
+    SELECT 
+      id,
+      event_title,
+      description,
+      date,
+      time,
+      venue,
+      created_by,
+      created_at
+    FROM 
+      events
+    ORDER BY 
+      date ASC, time ASC;
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error fetching events:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    res.json(results);
+  });
+});
+// Endpoint to check if a student is registered for an event
+app.get("/check-registration/:eventId/:studentId", (req, res) => {
+  const { eventId, studentId } = req.params;
+
+  const query = `
+    SELECT id FROM event_registrations
+    WHERE event_id = ? AND student_id = ?
+    LIMIT 1;
+  `;
+
+  db.query(query, [eventId, studentId], (err, results) => {
+    if (err) {
+      console.error("Error checking registration:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    if (results.length === 0) {
+      return res.json({ message: "Not registered" });
+    } else {
+      return res.json({ message: "Registered" });
+    }
+  });
+});
+// Endpoint to register a student for an event
+app.post("/std_register-event", (req, res) => {
+  const { eventId, studentId } = req.body;
+
+  const query = `
+    INSERT INTO event_registrations (event_id, student_id)
+    VALUES (?, ?);
+  `;
+
+  db.query(query, [eventId, studentId], (err, results) => {
+    if (err) {
+      console.error("Error registering for event:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    res.json({ success: true, message: "Registered successfully" });
+  });
+});
+app.get("/faculty-names", (req, res) => {
+  const query = `
+      SELECT username 
+      FROM users 
+      WHERE role = 'faculty';
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error fetching faculty names:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    // Return the list of faculty usernames
+    res.json(results.map((result) => result.username));
+  });
+});
+app.get("/check-appointment/:studentId/:facultyName", (req, res) => {
+  const { studentId, facultyName } = req.params;
+
+  const query = `
+      SELECT * FROM appointments 
+      WHERE student_id = ? AND faculty_name = ?
+      LIMIT 1;
+  `;
+
+  db.query(query, [studentId, facultyName], (err, results) => {
+    if (err) {
+      console.error("Error checking appointment:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    if (results.length > 0) {
+      res.json({
+        message: "Appointment already booked",
+        status: results[0].status,
+      });
+    } else {
+      res.json({ message: "No appointment found" });
+    }
+  });
+});
+app.post("/book-appointment", (req, res) => {
+  const { student_id, faculty_name, date, time } = req.body;
+
+  const query = `
+      INSERT INTO appointments (student_id, faculty_name, date, time, status) 
+      VALUES (?, ?, ?, ?, 'pending');
+  `;
+
+  db.query(query, [student_id, faculty_name, date, time], (err, results) => {
+    if (err) {
+      console.error("Error booking appointment:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    res.json({ success: true, message: "Appointment booked successfully" });
+  });
+});
+app.get("/appointments/:facultyName", (req, res) => {
+  const { facultyName } = req.params;
+
+  const query = `
+      SELECT id, student_id, date, time, status, created_at
+      FROM appointments
+      WHERE faculty_name = ?
+      ORDER BY date, time;
+  `;
+
+  db.query(query, [facultyName], (err, results) => {
+    if (err) {
+      console.error("Error fetching appointments:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    res.json(results);
+  });
+});
+// Endpoint to update the status of an appointment
+app.put("/appointments/:id/status", (req, res) => {
+  const appointmentId = req.params.id;
+  const { status } = req.body;
+
+  // Check if the status is either "confirmed" or "cancelled"
+  if (!["confirmed", "cancelled"].includes(status)) {
+    return res
+      .status(400)
+      .json({ error: "Invalid status. Must be 'confirmed' or 'cancelled'." });
+  }
+
+  const query = `
+      UPDATE appointments
+      SET status = ?
+      WHERE id = ?;
+  `;
+
+  db.query(query, [status, appointmentId], (err, results) => {
+    if (err) {
+      console.error("Error updating appointment status:", err);
+      return res
+        .status(500)
+        .json({ error: "Database error while updating status" });
+    }
+
+    if (results.affectedRows === 0) {
+      return res.status(404).json({ error: "Appointment not found" });
+    }
+
+    res.json({
+      success: true,
+      message: "Appointment status updated successfully",
+    });
+  });
+});
 
 // Start the server
 app.listen(port, () => {

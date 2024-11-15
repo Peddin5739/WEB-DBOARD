@@ -1,0 +1,78 @@
+.std-appointments-container {
+  width: 80%;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+.std-appointments-container h1 {
+  color: #0056b3;
+}
+
+.faculty-list {
+  margin-top: 20px;
+}
+
+.faculty-list ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.faculty-item {
+  background-color: #f0f8ff;
+  border: 1px solid #d1e7fd;
+  border-radius: 8px;
+  padding: 10px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: background-color 0.2s;
+}
+
+.faculty-item:hover {
+  background-color: #e0f0ff;
+}
+
+.appointment-details {
+  margin-top: 20px;
+  border: 1px solid #d1e7fd;
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.appointment-details label {
+  display: block;
+  margin-top: 10px;
+}
+
+.appointment-status {
+  font-weight: bold;
+  color: green;
+}
+
+.book-button {
+  margin-top: 10px;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: white;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.book-button:hover {
+  background-color: #0056b3;
+}
+
+.error-message {
+  color: red;
+  margin-top: 10px;
+}
+
+.success-message {
+  color: green;
+  margin-top: 10px;
+}

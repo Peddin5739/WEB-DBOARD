@@ -12,6 +12,9 @@ export default function StdDashboard() {
         <button onClick={() => navigate("/stdBooks")}>Books</button>
         <button onClick={() => navigate("/discussion")}>Discussion</button>
         <button onClick={() => navigate("/stdEvents")}>Events</button>
+        <button onClick={() => navigate("/stdappointments")}>
+          Appointments
+        </button>
       </header>
       <main className="content">
         <h1>Welcome to the Student Dashboard</h1>

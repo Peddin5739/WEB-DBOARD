@@ -22,6 +22,9 @@ h2 {
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .event-card h3 {
@@ -42,6 +45,8 @@ h2 {
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  align-self: center; /* Center the button within the card */
+  margin-top: 10px; /* Add some margin at the top */
 }
 
 .event-card button:hover {

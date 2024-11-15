@@ -87,7 +87,7 @@ CREATE TABLE events (
     FOREIGN KEY (created_by) REFERENCES users(id) 
       ON DELETE SET NULL ON UPDATE CASCADE
 );
-
+select * from events;
 -- Event Registrations Table
 CREATE TABLE event_registrations (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -99,18 +99,20 @@ CREATE TABLE event_registrations (
     FOREIGN KEY (student_id) REFERENCES users(id) 
       ON DELETE CASCADE ON UPDATE CASCADE
 );
-
+select * from event_registrations;
 -- Appointments Table
 CREATE TABLE appointments (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    student_id INT,
-    department_name VARCHAR(255) NOT NULL,
-    url VARCHAR(255) NOT NULL,
+    student_id INT NOT NULL,
+    faculty_name VARCHAR(255) NOT NULL,
+    date DATE NOT NULL,
+    time TIME NOT NULL,
+    status VARCHAR(50) DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (student_id) REFERENCES users(id) 
       ON DELETE CASCADE ON UPDATE CASCADE
 );
-
+SELECT * FROM appointments;
 -- Follows Table
 CREATE TABLE follows (
     following_user_id INT,
@@ -122,7 +124,7 @@ CREATE TABLE follows (
     FOREIGN KEY (followed_user_id) REFERENCES users(id) 
       ON DELETE CASCADE ON UPDATE CASCADE
 );
-
+select * from follows;
 -- Posts Table
 CREATE TABLE posts (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -244,18 +246,14 @@ INSERT INTO event_registrations (event_id, student_id, registered_at) VALUES
 (10, 9, NOW());
 
 -- Insert sample data into appointments table
-INSERT INTO appointments (student_id, department_name, url, created_at) VALUES
-(1, 'Writing Center', 'http://writingcenter.example.com', NOW()),
-(3, 'Student Success Center', 'http://successcenter.example.com', NOW()),
-(5, 'Parking and Transportation', 'http://parking.example.com', NOW()),
-(7, 'Counseling Services', 'http://counseling.example.com', NOW()),
-(9, 'IT Help Desk', 'http://ithelp.example.com', NOW()),
-(1, 'Career Services', 'http://careerservices.example.com', NOW()),
-(3, 'Library Services', 'http://library.example.com', NOW()),
-(5, 'Health Services', 'http://health.example.com', NOW()),
-(7, 'Financial Aid Office', 'http://financialaid.example.com', NOW()),
-(9, 'Admissions Office', 'http://admissions.example.com', NOW());
-
+INSERT INTO appointments (student_id, faculty_name, date, time, status)
+VALUES 
+    (3, 'jane_doe', '2024-11-20', '10:00:00', 'pending'),
+    (5, 'david_white', '2024-11-21', '14:00:00', 'pending'),
+    (7, 'henry_blue', '2024-11-22', '09:30:00', 'pending'),
+    (9, 'frank_red', '2024-11-23', '13:00:00', 'pending'),
+    (3, 'bob_jones', '2024-11-24', '11:00:00', 'pending');
+SELECT * FROM appointments;
 -- Insert sample data into follows table
 INSERT INTO follows (following_user_id, followed_user_id, created_at) VALUES
 (1, 2, NOW()),
