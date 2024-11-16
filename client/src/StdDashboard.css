@@ -56,3 +56,13 @@
   font-size: 18px;
   line-height: 1.5;
 }
+.content a {
+  color: white; /* Change the link color to white */
+  text-decoration: none; /* Remove underline for a cleaner look */
+  font-weight: bold; /* Optional: make the links bold */
+  transition: color 0.3s ease; /* Add a smooth color transition effect */
+}
+
+.content a:hover {
+  color: #ccc; /* Optional: Change the link color to a lighter shade on hover */
+}

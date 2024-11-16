@@ -162,7 +162,12 @@ export default function Events() {
                 <p>
                   <strong>Venue:</strong> {event.venue}
                 </p>
-                <button onClick={() => handleEditEvent(event)}>Edit</button>
+                <button
+                  className="edit-button"
+                  onClick={() => handleEditEvent(event)}
+                >
+                  Edit
+                </button>
               </>
             )}
           </div>

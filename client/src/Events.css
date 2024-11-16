@@ -84,3 +84,23 @@ h2 {
 .new-event-form button:hover {
   background-color: #218838;
 }
+/* Scoped CSS for Edit Button */
+.edit-button {
+  padding: 10px 15px;
+  font-size: 14px;
+  background-color: #007bff; /* Bright blue color */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  display: block; /* Makes sure button takes a proper position */
+  width: 100px; /* Define a fixed width for consistency */
+  text-align: center; /* Aligns text centrally */
+  margin: 10px auto 0; /* Center the button horizontally */
+}
+
+.edit-button:hover {
+  background-color: #0056b3; /* Slightly darker blue on hover */
+  transform: scale(1.05); /* Adds a subtle hover effect */
+}
